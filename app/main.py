@@ -5,9 +5,9 @@ from starlette.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth, OAuthError
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from .config import CLIENT_ID, CLIENT_SECRET, SECRET_KEY
-
+ 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="add any string...")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -32,9 +32,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
